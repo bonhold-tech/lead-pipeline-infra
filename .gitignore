@@ -1,0 +1,22 @@
+ # Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Terraform-generated files
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfplan
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Local OS/editor files
+.DS_Store
+.idea/
+.vscode/
+.vagrant/
