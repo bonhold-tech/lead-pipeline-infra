@@ -15,6 +15,7 @@ Message headers we add on a failure:
   db_saved        - True if the DB insert already worked (so a retry
                     only sends the email and does not insert twice)
 """
+
 import json
 import logging
 import os
@@ -50,7 +51,11 @@ log = logging.getLogger("consumer")
 def save_to_db(lead):
     """Insert the lead into leads.contact_form."""
     connection = pymysql.connect(
-        host=DB_HOST, user=DB_USER, password=DB_PASS, database=DB_NAME, connect_timeout=5
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASS,
+        database=DB_NAME,
+        connect_timeout=5,
     )
     try:
         with connection.cursor() as cursor:

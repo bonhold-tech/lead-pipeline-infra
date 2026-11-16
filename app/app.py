@@ -4,6 +4,7 @@ GET  /  -> show the form
 POST /  -> validate, block duplicates with Memcached, publish to RabbitMQ
 The web app never writes to the database - the consumer does that.
 """
+
 import hashlib
 import json
 import logging
@@ -89,7 +90,9 @@ def first_submission(email):
     try:
         client = Client((MC_HOST, 11211), connect_timeout=2, timeout=2)
         # noreply=False: wait for the answer, otherwise add() always returns True
-        stored = client.add(memcache_key(email), b"1", expire=DUPLICATE_SECONDS, noreply=False)
+        stored = client.add(
+            memcache_key(email), b"1", expire=DUPLICATE_SECONDS, noreply=False
+        )
         client.close()
         return stored
     except Exception:
@@ -143,11 +146,15 @@ def contact_form():
 
     errors = validate(form)
     if errors:
-        return render_template_string(PAGE, form=form, errors=errors, show_form=True), 400
+        return (
+            render_template_string(PAGE, form=form, errors=errors, show_form=True),
+            400,
+        )
 
     if not first_submission(form["email"]):
         return render_template_string(
-            PAGE, message="Thanks, we already received your request a few minutes ago. We will contact you soon."
+            PAGE,
+            message="Thanks, we already received your request a few minutes ago. We will contact you soon.",
         )
 
     try:
@@ -155,9 +162,15 @@ def contact_form():
     except Exception:
         log.exception("Could not publish the lead to RabbitMQ")
         forget_submission(form["email"])
-        return render_template_string(
-            PAGE, form=form, show_form=True, message="Sorry, something went wrong. Please try again in a moment."
-        ), 503
+        return (
+            render_template_string(
+                PAGE,
+                form=form,
+                show_form=True,
+                message="Sorry, something went wrong. Please try again in a moment.",
+            ),
+            503,
+        )
 
     log.info("Lead published to the '%s' queue", QUEUE)
     return render_template_string(PAGE, message="Thank you! We will contact you soon.")
